@@ -9,6 +9,7 @@ type StealthMachine = typeof stealthStateMachine;
 const mru = await MicroRollup({
   config: stackrConfig,
   actions: [...Object.values(schemas)],
+  isSandbox: true,
 });
 
 mru.stateMachines.add(stealthStateMachine);

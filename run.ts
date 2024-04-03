@@ -49,7 +49,7 @@ const run = async (actionName: ActionName, wallet: Wallet) => {
   const start = Date.now();
   const body = await getBody(actionName, wallet);
 
-  const res = await fetch(`http://localhost:3000/${actionName}`, {
+  const res = await fetch(`http://localhost:5050/${actionName}`, {
     method: "POST",
     body,
     headers: {

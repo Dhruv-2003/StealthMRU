@@ -6,7 +6,7 @@ export const registerSchema = new ActionSchema("register", {
   schemeId: SolidityType.UINT,
 });
 
-export const announceSchema = new ActionSchema("annuounce", {
+export const announceSchema = new ActionSchema("announce", {
   stealthAddress: SolidityType.ADDRESS,
   ephemeralPublicKey: SolidityType.BYTES,
   viewTag: SolidityType.UINT,

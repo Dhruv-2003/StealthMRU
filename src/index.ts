@@ -1,17 +1,18 @@
 import express, { Request, Response } from "express";
-
+import bodyParser from "body-parser";
 import { ActionEvents } from "@stackr/sdk";
 import { Playground } from "@stackr/sdk/plugins";
 import { schemas } from "./actions.ts";
 import { StealthMachine, mru } from "./stealth.ts";
 import { reducers } from "./reducers.ts";
-
+import cors from "cors";
 console.log("Starting server...");
 
 const stealthMachine = mru.stateMachines.get<StealthMachine>("stealth");
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 const playground = Playground.setup(mru);
 
@@ -56,6 +57,8 @@ app.post("/:actionName", async (req: Request, res: Response) => {
     payload: any;
   };
 
+  console.log(req.body);
+
   const schema = schemas[action];
 
   try {
@@ -80,6 +83,26 @@ app.get("/", (_req: Request, res: Response) => {
   return res.send({ state: stealthMachine?.state.unwrap() });
 });
 
-app.listen(5000, () => {
-  console.log("listening on port 5000");
+app.get("/announcements", (_req: Request, res: Response) => {
+  const currentAnnouncement = stealthMachine?.state.unwrap().announcements;
+  return res.send({ currentAnnouncement });
+});
+
+app.get("/registers", (_req: Request, res: Response) => {
+  const currentRegistry = stealthMachine?.state.unwrap().registers;
+  return res.send({ currentRegistry });
+});
+
+type ActionName = keyof typeof schemas;
+
+app.get("/getEIP712Types/:action", (_req: Request, res: Response) => {
+  // @ts-ignore
+  const { action }: { action: ActionName } = _req.params;
+
+  const eip712Types = schemas[action].EIP712TypedData.types;
+  return res.send({ eip712Types });
+});
+
+app.listen(5050, () => {
+  console.log("listening on port 5050");
 });

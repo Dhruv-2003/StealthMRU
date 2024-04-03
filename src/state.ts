@@ -95,17 +95,18 @@ export class StealthtRollup extends State<StealthVariable, StealthTransport> {
       this.wrappedState.registerLeaves.length === 0
     ) {
       return ZeroHash;
-    } else if (
-      this.wrappedState.announcementLeaves.length !== 0 &&
-      this.wrappedState.registerLeaves.length === 0
-    ) {
-      return this.wrappedState.merkletreeAnnouncement.getHexRoot();
-    } else if (
-      this.wrappedState.announcementLeaves.length === 0 &&
-      this.wrappedState.registerLeaves.length !== 0
-    ) {
-      return this.wrappedState.merkletreeRegister.getHexRoot();
     }
+    // } else if (
+    //   this.wrappedState.announcementLeaves.length != 0 &&
+    //   this.wrappedState.registerLeaves.length === 0
+    // ) {
+    //   return this.wrappedState.merkletreeAnnouncement.getHexRoot();
+    // } else if (
+    //   this.wrappedState.announcementLeaves.length === 0 &&
+    //   this.wrappedState.registerLeaves.length !== 0
+    // ) {
+    //   return this.wrappedState.merkletreeRegister.getHexRoot();
+    // }
 
     const finalRoot = solidityPackedKeccak256(
       ["string", "string"],
