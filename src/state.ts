@@ -68,31 +68,35 @@ class StealthTransport {
   }
 }
 
-export class StealthtRollup extends State<StealthVariable, StealthTransport> {
+export class StealthRollup extends State<StealthVariable, StealthTransport> {
   constructor(state: StealthVariable) {
     super(state);
   }
 
-  wrap(state: StealthVariable): StealthTransport {
-    const newTree = new StealthTransport(state.announcements, state.registers);
-    return newTree;
-  }
-
-  clone(): State<StealthVariable, StealthTransport> {
-    return new StealthtRollup(this.unwrap());
-  }
-
-  unwrap(): StealthVariable {
+  transformer(): {
+    wrap: () => StealthTransport;
+    unwrap: (wrappedState: StealthTransport) => StealthVariable;
+  } {
     return {
-      announcements: this.wrappedState.announcementLeaves,
-      registers: this.wrappedState.registerLeaves,
+      wrap: () => {
+        return new StealthTransport(
+          this.state.announcements,
+          this.state.registers
+        );
+      },
+      unwrap: (wrappedState: StealthTransport) => {
+        return {
+          announcements: wrappedState.announcementLeaves,
+          registers: wrappedState.registerLeaves,
+        };
+      },
     };
   }
 
-  calculateRoot(): BytesLike {
+  getRootHash(): BytesLike {
     if (
-      this.wrappedState.announcementLeaves.length === 0 &&
-      this.wrappedState.registerLeaves.length === 0
+      this.state.announcements.length === 0 &&
+      this.state.registers.length === 0
     ) {
       return ZeroHash;
     }
@@ -111,8 +115,8 @@ export class StealthtRollup extends State<StealthVariable, StealthTransport> {
     const finalRoot = solidityPackedKeccak256(
       ["string", "string"],
       [
-        this.wrappedState.merkletreeAnnouncement.getHexRoot(),
-        this.wrappedState.merkletreeRegister.getHexRoot(),
+        this.transformer().wrap().merkletreeAnnouncement.getHexRoot(),
+        this.transformer().wrap().merkletreeRegister.getHexRoot(),
       ]
     );
 

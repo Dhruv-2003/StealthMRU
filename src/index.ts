@@ -4,7 +4,7 @@ import { ActionEvents } from "@stackr/sdk";
 import { Playground } from "@stackr/sdk/plugins";
 import { schemas } from "./actions.ts";
 import { StealthMachine, mru } from "./stealth.ts";
-import { reducers } from "./reducers.ts";
+import { transitions } from "./reducers.ts";
 import cors from "cors";
 console.log("Starting server...");
 
@@ -14,11 +14,10 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const playground = Playground.setup(mru);
+const playground = Playground.init(mru);
 
-playground.addMethodOnHttpServer(
-  "get",
-  "/hello",
+playground.addGetMethod(
+  "/custom/hello",
   async (_req: Request, res: Response) => {
     res.send("Hello World");
   }
@@ -43,7 +42,7 @@ app.get("/blocks/:hash", async (req: Request, res: Response) => {
 
 app.post("/:actionName", async (req: Request, res: Response) => {
   const { actionName } = req.params;
-  const actionReducer = reducers[actionName];
+  const actionReducer = transitions[actionName];
 
   if (!actionReducer) {
     res.status(400).send({ message: "no reducer for action" });
@@ -62,7 +61,11 @@ app.post("/:actionName", async (req: Request, res: Response) => {
   const schema = schemas[action];
 
   try {
-    const newAction = schema.newAction({ msgSender, signature, payload });
+    const newAction = schema.actionFrom({
+      msgSender,
+      signature,
+      inputs: payload,
+    });
     const ack = await mru.submitAction(actionName, newAction);
     res.status(201).send({ ack });
   } catch (e: any) {
@@ -80,16 +83,16 @@ events.subscribe(ActionEvents.EXECUTION_STATUS, async (action) => {
 });
 
 app.get("/", (_req: Request, res: Response) => {
-  return res.send({ state: stealthMachine?.state.unwrap() });
+  return res.send({ state: stealthMachine?.state });
 });
 
 app.get("/announcements", (_req: Request, res: Response) => {
-  const currentAnnouncement = stealthMachine?.state.unwrap().announcements;
+  const currentAnnouncement = stealthMachine?.state.announcements;
   return res.send({ currentAnnouncement });
 });
 
 app.get("/registers", (_req: Request, res: Response) => {
-  const currentRegistry = stealthMachine?.state.unwrap().registers;
+  const currentRegistry = stealthMachine?.state.registers;
   return res.send({ currentRegistry });
 });
 
