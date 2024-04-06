@@ -1,5 +1,10 @@
 import { State } from "@stackr/sdk/machine";
-import { BytesLike, ZeroHash, solidityPackedKeccak256 } from "ethers";
+import {
+  BytesLike,
+  ZeroHash,
+  solidityPacked,
+  solidityPackedKeccak256,
+} from "ethers";
 import { MerkleTree } from "merkletreejs";
 
 export type Annoucement = {
@@ -104,15 +109,24 @@ export class StealthRollup extends State<StealthVariable, StealthTransport> {
       this.state.announcements.length != 0 &&
       this.state.registers.length === 0
     ) {
+      console.log(
+        this.transformer().wrap().merkletreeAnnouncement.getHexRoot()
+      );
+
       return this.transformer().wrap().merkletreeAnnouncement.getHexRoot();
     } else if (
       this.state.announcements.length === 0 &&
       this.state.registers.length !== 0
     ) {
+      console.log(this.transformer().wrap().merkletreeRegister.getHexRoot());
+
       return this.transformer().wrap().merkletreeRegister.getHexRoot();
     }
 
-    const finalRoot = solidityPackedKeccak256(
+    console.log(this.transformer().wrap().merkletreeAnnouncement.getHexRoot());
+    console.log(this.transformer().wrap().merkletreeRegister.getHexRoot());
+
+    return solidityPackedKeccak256(
       ["bytes", "bytes"],
       [
         this.transformer().wrap().merkletreeAnnouncement.getHexRoot(),
@@ -120,6 +134,6 @@ export class StealthRollup extends State<StealthVariable, StealthTransport> {
       ]
     );
 
-    return finalRoot;
+    // return finalRoot;
   }
 }

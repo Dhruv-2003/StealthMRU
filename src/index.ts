@@ -96,6 +96,11 @@ app.get("/registers", (_req: Request, res: Response) => {
   return res.send({ currentRegistry });
 });
 
+app.get("/getRootHash", (_req: Request, res: Response) => {
+  const currentRegistry = stealthMachine?.stateRootHash;
+  return res.send({ currentRegistry });
+});
+
 type ActionName = keyof typeof schemas;
 
 app.get("/getEIP712Types/:action", (_req: Request, res: Response) => {
