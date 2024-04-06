@@ -2,18 +2,20 @@ import { MicroRollup } from "@stackr/sdk";
 import { stackrConfig } from "../stackr.config.ts";
 
 import { schemas } from "./actions.ts";
-import { stealthStateMachine } from "./machines.stackr.ts";
+import { stealthAnnouncementStateMachine } from "./stateMachine1/machines.stackr.ts";
+import { stealthRegisterStateMachine } from "./stateMachine2/machines.stackr.ts";
+// import { stealthStateMachine } from "./machines.stackr.ts";
 
-type StealthMachine = typeof stealthStateMachine;
+type StealthAnnouncementMachine = typeof stealthAnnouncementStateMachine;
+type StealthRegisterMachine = typeof stealthRegisterStateMachine;
 
 const mru = await MicroRollup({
   config: stackrConfig,
-  actions: [...Object.values(schemas)],
+  actionSchemas: [...Object.values(schemas)],
+  stateMachines: [stealthAnnouncementStateMachine, stealthRegisterStateMachine],
   isSandbox: true,
 });
 
-mru.stateMachines.add(stealthStateMachine);
-
 await mru.init();
 
-export { StealthMachine, mru };
+export { StealthAnnouncementMachine, StealthRegisterMachine, mru };
